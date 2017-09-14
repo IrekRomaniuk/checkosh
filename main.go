@@ -16,7 +16,7 @@ func main() {
 	err := db.ReadFile("10.254.253.100:27017", database, collection, f)
 	if err != nil { os.Exit(1) }
 
-	f = db.File{"./data/checkosh-int", map[string]int{"Name":0, "Int":1}}
+	f = db.File{"./data/checkosh-int", map[string]int{"Name":0, "Int":1, "Comment":2}}
 	err = db.ReadFile("10.254.253.100:27017", database, collection, f)
 	if err != nil { os.Exit(2) }
 }
