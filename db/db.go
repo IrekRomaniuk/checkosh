@@ -6,6 +6,7 @@ import (
 	"bufio"
 	"os"
 	"strings"
+	"fmt"
 )
 // Session to db
 type Session *mgo.Session
@@ -38,7 +39,6 @@ func Upsert(robo map[string]string, session *mgo.Session, db, collection, Name s
 // Update updates document 
 func Update(robo map[string]string, session *mgo.Session, db, collection, Name string) error {
 	c := session.DB(db).C(collection)
-	// i.e. {"Name":"test", "Ext":"1.1.1.1", "Policy":"MyPolicy", "Int":"10.10.10.10"}
 	err := c.Update(bson.M{"Name": robo["Name"]}, bson.M{"$set": robo})
 	return err		
 	}
@@ -57,26 +57,15 @@ func ReadFile(address, database, collection string, f File) error {
 	for scanner.Scan() {
 		robo = strings.Fields(scanner.Text())
 		val, ok := f.Mapping["Name"]
-		if ok { 
-			//r.Name = robo[val] 
-			r["Name"] = robo[val] 
-		}
+		if ok { r["Name"] = robo[val] }
 		val, ok = f.Mapping["Ext"]
-		if ok {  
-			r["Ext"] = robo[val]
-		}
+		if ok { r["Ext"] = robo[val] }
 		val, ok = f.Mapping["Int"]
-		if ok { 
-			r["Int"] = robo[val]
-		}
+		if ok { r["Int"] = robo[val] }
 		val, ok = f.Mapping["Comment"]
-		if ok { 
-			r["Comment"] = robo[val]
-		}
+		if ok { r["Comment"] = robo[val] }
 		_, ok = f.Mapping["Policy"]
-		if ok {  
-			r["Policy"] = robo[len(robo)-1]
-			} 
+		if ok { r["Policy"] = robo[len(robo)-1] } 
 		err = Update(r, session, database, collection, r["Name"])
 		//_, err = Upsert(r, session, database, collection, r["Name"])
 		if err != nil { return err }
@@ -94,9 +83,11 @@ func ReadFile(address, database, collection string, f File) error {
 func Close(session *mgo.Session) {
 	session.Close()
 	}
-// Intitial initis db, see also 'https://gist.github.com/border/3489566'
-func Intitial(address, database, collection string) error {
+// Intitialize initis db, see also 'https://gist.github.com/border/3489566'
+func Intitialize(address, database, collection string) error {
 	session, err := Connect(address)
+	if err != nil { return err }
+	err = session.DB(database).DropDatabase()
 	if err != nil { return err }
 	c := session.DB(database).C(collection)
 	// Index
@@ -112,7 +103,16 @@ func Intitial(address, database, collection string) error {
 	if err != nil {
 		return(err)
 	}
-
 	// Fill in Int with 10.192.0.0/12
+  var ip string
+	for x := 192; x <= 207; x++ {
+		for y := 0; y <= 255; y++ {
+			ip = fmt.Sprintf("10.%d.%d.1", x, y)
+			_, err = c.Upsert(bson.M{"_id": ip}, map[string]string{})
+			if err != nil { fmt.Println(ip, err)}	else {
+				fmt.Println(ip)	
+			}	
+		}
+	}
 	return err
 }

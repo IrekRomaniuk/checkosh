@@ -3,7 +3,7 @@ package db
 import (
 	"testing"
 	"fmt"
-	"gopkg.in/mgo.v2/bson"
+	//"gopkg.in/mgo.v2/bson"
 )
 
 func TestUpdate(t *testing.T) {	
@@ -20,6 +20,12 @@ func TestUpsert(t *testing.T) {
 	session, _ := Connect("10.254.253.100:27017")
 	_, err := Upsert(robo, session, "meteor", "robo", "Name")
 	if err != nil { fmt.Println(robo, err)}
+}
+
+func TestInit(t *testing.T) {
+	// go test -run TestInit
+	err := Intitialize("10.254.253.100:27017", "meteor", "robo")
+	if err != nil { fmt.Println(err)}
 }
 
 /*func TestStats(t *testing.T) {
