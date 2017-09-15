@@ -10,10 +10,9 @@ import (
 )
 // Session to db
 type Session *mgo.Session
-// Robo struct
-type Robo struct {
+/*type Robo struct {
 	Name, Ext, Int, Policy, DC1, DC2 string
-}
+}*/
 // File struct
 type File struct {
 	Name string
@@ -45,7 +44,7 @@ func Update(robo map[string]string, session *mgo.Session, db, collection, Name s
 // var r Robo
 var robo []string
 // ReadFile reads file into db
-func ReadFile(address, database, collection string, f File) error {
+func ReadFile(address, database, collection string, f File, upsert bool) error {
 	file, err := os.Open(f.Name)	
 	if err != nil { return err }	
 	defer file.Close()
@@ -63,18 +62,24 @@ func ReadFile(address, database, collection string, f File) error {
 		val, ok = f.Mapping["Int"]
 		if ok { r["Int"] = robo[val] }
 		val, ok = f.Mapping["Comment"]
-		if ok { r["Comment"] = robo[val] }
+		if ok { r["Comment"] = strings.Join(robo[val:],"") }
 		_, ok = f.Mapping["Policy"]
 		if ok { r["Policy"] = robo[len(robo)-1] } 
-		err = Update(r, session, database, collection, r["Name"])
-		//_, err = Upsert(r, session, database, collection, r["Name"])
-		if err != nil { return err }
+		if upsert {
+			_, err = Upsert(r, session, database, collection, r["Name"])
+		}
+			err = Update(r, session, database, collection, r["Name"])
+		
+		if err != nil { 
+			fmt.Println(r["Name"], err)
+			return err 
+		}
 	}
 	err = scanner.Err() 
 	return err	  
 }
 // Insert inserts document into collection
- func Insert(robo Robo, session *mgo.Session, db, collection string) error {
+ func Insert(robo map[string]string, session *mgo.Session, db, collection string) error {
 	c := session.DB(db).C(collection)
 	err := c.Insert(robo)
 	return err		
