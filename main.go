@@ -11,6 +11,8 @@ import (
 var (
 	//PATH to results
 	PATH  = flag.String("p", "./", "path to read files from")
+	//ADDRESS of db
+	ADDRESS  = flag.String("a", "10.254.253.100:27017", "db addr")
 	version   = flag.Bool("v", false, "Prints current version")
 	// Version : Program version
 	Version   = "No Version Provided" 
@@ -40,7 +42,7 @@ func main() {
 	log.Println("checkosh - starting Read ")
 	// Map first column of f file to db Name and 3rd to db Ext, Policy always mapped to last column
 	f := db.File{*PATH + "checkosh-lsm", map[string]int{"Name":0, "Ext":2, "Policy":0}}
-	err := db.ReadFile("10.254.253.100:27017", database, collection, f, true) //true for upsert
+	err := db.ReadFile(*ADDRESS, database, collection, f, true) //true for upsert
 	if err != nil { 
 		log.Println(err) 
 	} else {
