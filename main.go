@@ -50,7 +50,7 @@ func main() {
 	}
 
 	f = db.File{*PATH + "./checkosh-int", map[string]int{"Name":0, "Int":1, "Comment":2}}
-	err = db.ReadFile("10.254.253.100:27017", database, collection, f, false) //false if update
+	err = db.ReadFile(*ADDRESS, database, collection, f, false) //false if update
 	if err != nil { 
 		log.Println(err) 
 	} else {
