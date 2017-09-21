@@ -10,9 +10,6 @@ import (
 )
 // Session to db
 type Session *mgo.Session
-/*type Robo struct {
-	Name, Ext, Int, Policy, DC1, DC2 string
-}*/
 // File struct
 type File struct {
 	Name string
@@ -44,7 +41,7 @@ func Update(robo map[string]string, session *mgo.Session, db, collection, Name s
 // var r Robo
 var robo []string
 // ReadFile reads file into db
-func ReadFile(address, database, collection string, f File, upsert bool) error {
+func ReadFile(address, database, collection string, f File) error { //, upsert bool
 	file, err := os.Open(f.Name)	
 	if err != nil { return err }	
 	defer file.Close()
@@ -58,18 +55,24 @@ func ReadFile(address, database, collection string, f File, upsert bool) error {
 		val, ok := f.Mapping["Name"]
 		if ok { r["Name"] = robo[val] }
 		val, ok = f.Mapping["Ext"]
-		if ok { r["Ext"] = robo[val] }
+		if ok { 
+			r["Ext"] = robo[val]
+			record, _ := Location("./bin/IP2LOCATION-LITE-DB11.BIN", r["Ext"]) 
+			r["City"] = record.City
+			r["Latitude"] = fmt.Sprintf("%.6f", record.Latitude)
+			r["Longitude"] = fmt.Sprintf("%.6f", record.Longitude)
+			r["Region"] = record.Region
+			r["Zipcode"] = record.Zipcode
+		}
 		val, ok = f.Mapping["Int"]
 		if ok { r["Int"] = robo[val] }
 		val, ok = f.Mapping["Comment"]
 		if ok { r["Comment"] = strings.Join(robo[val:],"") }
 		_, ok = f.Mapping["Policy"]
 		if ok { r["Policy"] = robo[len(robo)-1] } 
-		if upsert {
+		if err = Update(r, session, database, collection, r["Name"]); err != nil {
 			_, err = Upsert(r, session, database, collection, r["Name"])
 		}
-			err = Update(r, session, database, collection, r["Name"])
-		
 		if err != nil { 
 			fmt.Println(r["Name"], err)
 			return err 

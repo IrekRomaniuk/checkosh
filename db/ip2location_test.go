@@ -1,10 +1,13 @@
-package ip2location
+package db
 import (
 	"fmt"
 	"testing"
 )
 func TestLocation(t *testing.T) {
-	results := Location("../bin/IP2LOCATION-LITE-DB11.BIN", "8.8.8.8")
+	results, err := Location("../bin/IP2LOCATION-LITE-DB11.BIN", "8.8.8.8")
+	if err != nil {
+		fmt.Println(err)
+	}
 	fmt.Printf("country_short: %s\n", results.Country_short)
 	fmt.Printf("country_long: %s\n", results.Country_long)
 	fmt.Printf("region: %s\n", results.Region)

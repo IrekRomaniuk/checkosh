@@ -42,7 +42,7 @@ func main() {
 	log.Println("checkosh - starting Read ")
 	// Map first column of f file to db Name and 3rd to db Ext, Policy always mapped to last column
 	f := db.File{*PATH + "checkosh-lsm", map[string]int{"Name":0, "Ext":2, "Policy":0}}
-	err := db.ReadFile(*ADDRESS, database, collection, f, true) //true for upsert
+	err := db.ReadFile(*ADDRESS, database, collection, f) //true for upsert
 	if err != nil { 
 		log.Println(err) 
 	} else {
@@ -50,7 +50,7 @@ func main() {
 	}
 
 	f = db.File{*PATH + "./checkosh-int", map[string]int{"Name":0, "Int":1, "Comment":2}}
-	err = db.ReadFile(*ADDRESS, database, collection, f, false) //false if update
+	err = db.ReadFile(*ADDRESS, database, collection, f) //false if update
 	if err != nil { 
 		log.Println(err) 
 	} else {
