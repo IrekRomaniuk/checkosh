@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 	"fmt"
+	"path/filepath"
 )
 // Session to db
 type Session *mgo.Session
@@ -45,6 +46,7 @@ func ReadFile(address, database, collection string, f File) error { //, upsert b
 	file, err := os.Open(f.Name)	
 	if err != nil { return err }	
 	defer file.Close()
+	//fmt.Println(filepath.Dir(f.Name) + "/bin/IP2LOCATION-LITE-DB11.BIN")
 	session, err := Connect(address)
 	if err != nil { return err }
 	// create a new scanner and read the file line by line
@@ -57,7 +59,7 @@ func ReadFile(address, database, collection string, f File) error { //, upsert b
 		val, ok = f.Mapping["Ext"]
 		if ok { 
 			r["Ext"] = robo[val]
-			record, _ := Location("./bin/IP2LOCATION-LITE-DB11.BIN", r["Ext"]) 
+			record, _ := Location(filepath.Dir(f.Name) + "/bin/IP2LOCATION-LITE-DB11.BIN", r["Ext"]) 
 			r["City"] = record.City
 			r["Latitude"] = fmt.Sprintf("%.6f", record.Latitude)
 			r["Longitude"] = fmt.Sprintf("%.6f", record.Longitude)
